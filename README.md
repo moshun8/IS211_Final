@@ -5,6 +5,6 @@ user: admin
 password: default
 
 To initalize database for the first time:
->python
->from app import init_db
->init_db()
+-->python
+-->from app import init_db
+-->init_db()

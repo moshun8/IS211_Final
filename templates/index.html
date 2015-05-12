@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+  <ul class=entries>
+  {% for entry in entries %}
+    <li><h2><em>{{ entry.title }}</em></h2>{{ entry.content|safe }}
+      <p>Author: {{ entry.user }}<br>Date/Time Posted: {{ entry.timeEntry }}<br>
+      <a href='{{ entry.permalink }}'>Link to Post</a></p>
+  {% else %}
+    <li><em>No entries here so far. Better login and start writing!</em>
+  {% endfor %}
+  </ul>
+{% endblock %}

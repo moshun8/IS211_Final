@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+      <dl>
+        <dt>Title of Your Masterpiece:
+        <dd><input type=text size=30 name=title>
+        <dt>Your Most Profound Thoughts:
+        <dd><textarea name=content rows=10 cols=50></textarea>
+        <dd><input type=submit value=Submit>
+      </dl>
+    </form>
+  {% endif %}
+
+  <table name="blogEntries"> 
+    {% for entry in entries %}
+    <tr>
+      <td>{{ entry.title }}</td>
+      <td><form action="/edit" method="post">
+            <input type="text" name='id' hidden="true" value="{{ entry.id }}"/>
+            <input type="submit" value="Edit"></input>
+          </form>
+      </td>
+      <td><form action="/delete" method="post">
+            <input type="text" name='id' hidden="true" value="{{ entry.id }}"/>
+            <input type="submit" value="Delete"></input>
+            <td><a href='{{ entry.permalink }}'>Link to Post</a></td>
+          </form>
+      </td>
+
+    </tr>
+    {% else %}
+      <li><em>No entries here so far. Better start writing!</em>
+    {% endfor %}
+    </table>
+{% endblock %}

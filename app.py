@@ -60,8 +60,8 @@ def show_post(id):
 def add_entry():
     if not session.get('logged_in'):
         abort(401)
-    g.db.execute('INSERT INTO entries (title, content, user) VALUES (?, ?, ?)',
-        [request.form['title'], request.form['content'], USERNAME])
+    g.db.execute('INSERT INTO entries (title, content, user, publish) VALUES (?, ?, ?, ?)',
+        [request.form['title'], request.form['content'], USERNAME, request.form['publish']])
     g.db.commit()
     flash('Success! Your post has been added.')
     return render_template('dashboard.html', entries=get_entries())
@@ -71,15 +71,27 @@ def add_entry():
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != app.config['USERNAME']:
+        rec = get_user(request.form['username'])
+        if rec == None:
             error = 'Incorrect username'
-        elif request.form['password'] != app.config['PASSWORD']:
+        elif request.form['password'] != rec['password']:
             error = 'Incorrect password'
         else:
             session['logged_in'] = True
-            flash('Sucess! You have been logged in.')
+            app.config['USERNAME'] = rec['username']
+            flash(rec['displayName'] + ', you have been logged in.')
             return redirect('/dashboard')
     return render_template('login.html', error=error)
+
+
+def get_user(username):
+    cur = g.db.execute('SELECT username, password,\
+        displayName from users where username =?', [(username)])
+    row = cur.fetchone()
+    if row != None:
+        return dict(username=row[0], password=row[1], displayName=row[2])
+    else:
+        return None
 
 
 @app.route('/logout')
@@ -97,13 +109,14 @@ def dashboard():
 def get_entries():
     '''Use when calling all posts'''
     cur = g.db.execute('SELECT title, content, id, timeEntry,\
-        user from entries order by id desc')
+        user, publish from entries order by id desc')
     return[dict(
         title=row[0],
         content=row[1],
         id=row[2],
         timeEntry=row[3],
         user=row[4],
+        publish=row[5],
         permalink='/post/' + str(row[2])
         ) for row in cur.fetchall()]
 
@@ -111,23 +124,24 @@ def get_entries():
 def get_entry(id):
     '''Use when calling only 1 post'''
     cur = g.db.execute('SELECT title, content, id, timeEntry,\
-        user from entries where id =?', [(id)])
+        user, publish from entries where id =?', [(id)])
     row = cur.fetchone()
     return dict(
         title=row[0],
         content=row[1],
         id=row[2],
         timeEntry=row[3],
-        user=row[4])
+        user=row[4],
+        publish=row[5])
 
 
 @app.route('/save', methods=['POST'])
 def save():
     entryId = int(request.form['id'])
     cur = g.db.execute(
-        'UPDATE entries SET title=?, content=?, timeEntry=? WHERE id=?',\
+        'UPDATE entries SET title=?, content=?, timeEntry=?, publish=? WHERE id=?',\
         (request.form['title'], request.form['content'],
-            request.form['timeEntry'], entryId))
+            request.form['timeEntry'], request.form['publish'], entryId))
     g.db.commit()
     flash('Your post has been updated.')
     return redirect('/dashboard')
@@ -146,6 +160,16 @@ def delete():
     g.db.commit()
     flash('Success! Blog entry deleted.')
     return redirect('/dashboard')
+
+
+@app.route('/unpublish', methods=['POST'])
+def unpublish():
+    entryId = int(request.form['id'])
+    cur = g.db.execute('UPDATE entries SET publish=? WHERE id=?',\
+        ('no', entryId))
+    g.db.commit()
+    flash('Success! Your post has been unpublished.')
+    return redirect ('/dashboard')
 
 
 if __name__ == "__main__":

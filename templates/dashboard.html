@@ -7,29 +7,63 @@
         <dd><input type=text size=30 name=title>
         <dt>Your Most Profound Thoughts:
         <dd><textarea name=content rows=10 cols=50></textarea>
-        <dd><input type=submit value="Publish">
+        <dd><input type="radio" name="publish" value="yes" checked>Publish</input><br>
+        <dd><input type="radio" name="publish" value="no">Save For Later</input><br>
+        <dd><input type=submit value="Submit">
       </dl>
     </form>
   {% endif %}
 
-  <table name="blogEntries"> 
+    <h2>Published</h2>
     {% for entry in entries %}
-    <tr>
-      <td>{{ entry.title }}</td>
-      <td><form action="/edit" method="post">
-            <input type="text" name='id' hidden="true" value="{{ entry.id }}"/>
-            <input type="submit" value="Edit"></input>
-          </form>
-      </td>
-      <td><form action="/delete" method="post">
-            <input type="text" name='id' hidden="true" value="{{ entry.id }}"/>
-            <input type="submit" value="Delete"></input>
-            <td><a href='{{ entry.permalink }}'>Link to Post</a></td>
-          </form>
-      </td>
-
-    </tr>
+      {% if entry.publish == "yes" %}
+      <table name="blogEntries">
+        <tr>
+          <td>{{ entry.title }}</td>
+          <td><form action="/edit" method="post">
+                <input type="text" name='id' hidden="true" value="{{ entry.id }}"/>
+                <input type="submit" value="Edit"></input>
+              </form>
+          </td>
+          <td><form action="/delete" method="post">
+                <input type="text" name='id' hidden="true" value="{{ entry.id }}"/>
+                <input type="submit" value="Delete"></input>
+              </form>
+          </td>
+          <td><form action="/unpublish" method="post">
+                <input type="text" name='id' hidden="true" value="{{ entry.id }}"/>
+                <input type="text" name="publish" hidden="true" value="{{ entry.publish }}"/>
+                <input type="submit" value="Unpublish"></input>
+              </form>
+          </td>
+          <td><a href='{{ entry.permalink }}'>Link to Post</a></td>
+        </tr>
+      </table>
+      {% endif %}
+    {% endfor %}
+    <br>
+    <h2>Unpublished</h2>
+    {% for entry in entries %}
+      {% if entry.publish == "no" %}
+      <table name="unpubEntries">
+        <tr>
+          <td>{{ entry.title }}</td>
+          <td><form action="/edit" method="post">
+                <input type="text" name='id' hidden="true" value="{{ entry.id }}"/>
+                <input type="submit" value="Edit"></input>
+              </form>
+          </td>
+          <td><form action="/delete" method="post">
+                <input type="text" name='id' hidden="true" value="{{ entry.id }}"/>
+                <input type="submit" value="Delete"></input>
+              </form>
+          </td>
+          <td><a href='{{ entry.permalink }}'>Link to Post</a></td>
+        </tr>
+      </table>
+      {% endif %}
     {% else %}
+      <br>
       <li><em>No entries here so far. Better start writing!</em>
     {% endfor %}
     </table>

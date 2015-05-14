@@ -5,9 +5,12 @@
   <h1>Blog Blog Blog</h1>
   <div class=metanav>
   {% if not session.logged_in %}
-    <a href="{{ url_for('login') }}">log in</a>
+    <a href="{{ url_for('login') }}">log in</a><br>
+    <a href="{{ url_for('hello_world') }}">home</a>
   {% else %}
-    <a href="{{ url_for('logout') }}">log out</a>
+    <a href="{{ url_for('logout') }}">log out</a><br>
+    <a href="{{ url_for('dashboard') }}">dashboard</a><br>
+    <a href="{{ url_for('hello_world') }}">home</a>
   {% endif %}
   </div>
   {% for message in get_flashed_messages() %}

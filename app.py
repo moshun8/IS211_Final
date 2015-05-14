@@ -12,8 +12,7 @@ from contextlib import closing
 
 
 DEBUG = True
-USERNAME = 'admin'
-PASSWORD = 'default'
+USERNAME = ''
 DATABASE = 'blog_posts.db'
 SECRET_KEY = 'development key'
 
@@ -61,10 +60,10 @@ def add_entry():
     if not session.get('logged_in'):
         abort(401)
     g.db.execute('INSERT INTO entries (title, content, user, publish) VALUES (?, ?, ?, ?)',
-        [request.form['title'], request.form['content'], USERNAME, request.form['publish']])
+        [request.form['title'], request.form['content'], app.config['USERNAME'], request.form['publish']])
     g.db.commit()
     flash('Success! Your post has been added.')
-    return render_template('dashboard.html', entries=get_entries())
+    return redirect('/dashboard')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -83,7 +82,7 @@ def login():
             return redirect('/dashboard')
     return render_template('login.html', error=error)
 
-
+    
 def get_user(username):
     cur = g.db.execute('SELECT username, password,\
         displayName from users where username =?', [(username)])
@@ -98,6 +97,7 @@ def get_user(username):
 def logout():
     session.pop('logged_in', None)
     flash('You have been logged out.')
+    app.config['USERNAME'] = ''
     return redirect('/')
 
 

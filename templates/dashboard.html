@@ -16,7 +16,7 @@
 
     <h2>Published</h2>
     {% for entry in entries %}
-      {% if entry.publish == "yes" %}
+      {% if entry.publish == "yes" and entry.user == appConfig['USERNAME'] %}
       <table name="blogEntries">
         <tr>
           <td>{{ entry.title }}</td>
@@ -44,7 +44,7 @@
     <br>
     <h2>Unpublished</h2>
     {% for entry in entries %}
-      {% if entry.publish == "no" %}
+      {% if entry.publish == "no" and entry.user == appConfig['USERNAME'] %}
       <table name="unpubEntries">
         <tr>
           <td>{{ entry.title }}</td>

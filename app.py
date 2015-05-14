@@ -103,7 +103,8 @@ def logout():
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
-    return render_template('dashboard.html', entries=get_entries())
+    return render_template(
+        'dashboard.html', entries=get_entries(), appConfig=app.config)
 
 
 def get_entries():
